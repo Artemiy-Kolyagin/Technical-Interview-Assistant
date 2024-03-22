@@ -1,5 +1,7 @@
 package com.interviewassistant.TechnicalInterviewAssistant.controller;
 
+import com.interviewassistant.TechnicalInterviewAssistant.entites.Candidate;
+import com.interviewassistant.TechnicalInterviewAssistant.repository.CandidatesBase;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -7,6 +9,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,6 +19,9 @@ class TechnicalInterviewAssistantApplicationTests {
 
 	@Autowired
 	private TechnicalInterviewAssistantController technicalInterviewAssistantController;
+
+	@Autowired
+	CandidatesBase candidatesBase;
 
 	@Test
 	void startTest() {
@@ -41,10 +47,21 @@ class TechnicalInterviewAssistantApplicationTests {
 				"Некорректный ответ");
 	}
 
+	@Test
+	void topSkillsTest(){
+		Candidate candidate = new Candidate("Artem", List.of("Funny", "Fluffy", "Toxic"));
+		technicalInterviewAssistantController.topSkills(candidate);
+		Candidate candidateFromBase = candidatesBase.getCandidateByMame(candidate.name());
+		assertEquals(candidate.name(), candidateFromBase.name(), "Кандидат не записался в базу.");
+	}
+
 	private static Stream<Arguments> getDesirableSalary(){
 		return Stream.of(
 				Arguments.of("500", "Берём не глядя)"),
-				Arguments.of("2000", "Тогда тебе нужно получить токен для авторизации. Дёрни ручку GET /token на порте 12345"),
+				Arguments.of("2000", "Тогда идём дальше. Тебе нужно получить токен для авторизации. " +
+						"Дёрни ручку GET /token на порте 12345. " +
+						"Затем отправь на ручку POST /top-skills 3 своих главных навыка в теле запроса в JSON формате." +
+						"Формат name : значение(твоё имя), skills : значения в виде массива строк (твои навыки)"),
 				Arguments.of("5001", "Смело! Нет у нас таких зарплат(")
 		);
 	}
